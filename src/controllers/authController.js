@@ -4,6 +4,7 @@ const sendResponse = require("../utils/responseHelper")
 
 const loginController = async (req, res, next) => {
     try {
+        
         const {refreshToken, accessToken, payload} = await loginService(req.body)
         
         setRefreshTokenCookie(res, refreshToken)

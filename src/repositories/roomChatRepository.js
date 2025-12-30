@@ -2,7 +2,7 @@ const prisma = require("../config/db");
 
 const getAllChatByRoom = async roomId => await prisma.chatRooms.findUnique({
     where : {
-        id : roomId
+        roomId
     },
     include : {
         message : true

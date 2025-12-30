@@ -27,7 +27,7 @@ app.use(cors({
 
 app.use(express.json())
 app.use(express.urlencoded({extended : true}))
-app.use(cookieParser(process.env.COOKIE_SECRET))
+app.use(cookieParser())
 
 app.use(socketMiddleware(io))
 socketHandler(io)

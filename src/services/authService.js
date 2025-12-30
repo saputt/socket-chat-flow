@@ -51,6 +51,7 @@ const registerService = async data => {
 }
 
 const refreshTokenService = async token => {
+    console.log(token)
     if(!token) throw new AppError("Not authorized", 401)
 
     const refreshExistInDb = await findUserByRefresh(token)

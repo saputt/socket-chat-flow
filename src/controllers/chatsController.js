@@ -1,9 +1,9 @@
-const { getAllMessageByRoomIdService, deleteRoomChatService, deleteMessageService, getAllGroupService, addRoomPrivChatService, addRoomGroupChatService, joinPrivRoomService, joinGroupRoomService, updateGroupRoomService, sendMessagePrivService, sendMessageGroupService } = require("../services/chatService")
+const { getAllMessageByRoomIdService, deleteRoomChatService, deleteMessageService, getAllGroupService, addRoomPrivChatService, addRoomGroupChatService, joinPrivRoomService, joinGroupRoomService, updateGroupRoomService, sendMessagePrivService, sendMessageGroupService, sendMessageService } = require("../services/chatService")
 const sendResponse = require("../utils/responseHelper")
 
 const sendMessageController = async (req, res, next) => {
     try {
-        const message = await sendMessagePrivService(req.body, req.user.id, req.params.roomId)
+        const message = await sendMessageService(req.body, req.user.id, req.params.roomId)
 
         req.io?.to(message.chatRoomId).emit("send_message", message)
         

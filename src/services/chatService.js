@@ -3,7 +3,7 @@ const { findRoomById, getAllChatByRoom, getAllGroup, deleteRoomChatById, createG
 const AppError = require("../utils/errorHandler")
 const { isSendToExist, isUserExistById, isRoomExist } = require("../utils/serviceHelper")
 const generateRoomId = require("../utils/generateRoomId")
-const { addRoomMember } = require("../repositories/roomMemberRepository")
+const { addRoomMember, findMember } = require("../repositories/roomMemberRepository")
 
 const sendMessageService = async (data, senderId, roomId) => {
     const roomExist = await isRoomExist(roomId)
@@ -14,7 +14,7 @@ const sendMessageService = async (data, senderId, roomId) => {
         content : data.content,
         senderId : senderId,
         ...(data.sendTo && {sendTo : data.sendTo}),
-        roomId : roomId,
+        chatRoomId : roomId,
     }
 
     return createMessage(messageData)
@@ -92,7 +92,11 @@ const joinGroupRoomService = async (roomId, userId) => {
 
     await isUserExistById(userId)
 
-    return addRoomMember(userId, roomId)
+    const memberRoomExist = await findMember(roomId, userId)
+
+    if(!memberRoomExist) addRoomMember(userId, roomId)
+
+    return roomId
 }
 
 const getAllGroupService = async () => {
