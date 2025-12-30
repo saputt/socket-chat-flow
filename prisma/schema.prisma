@@ -1,0 +1,95 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Users {
+  id String @id @default(uuid())
+  name String
+  email String @unique
+  password String 
+  refreshToken String?
+
+  createdAt DateTime @default(now())
+
+  seller Sellers?
+  roomMember RoomMembers[]
+}
+
+model Sellers {
+  id String @id @default(uuid())
+  name String 
+  description String?
+
+  products Products[] @relation("productsSeller")
+  idUser String @unique
+  user Users @relation(fields: [idUser], references: [id], onDelete: Cascade)
+}
+
+model Products {
+  id String @id @default(uuid())
+  name String
+  stock Int?
+  description String?
+  sellerId String 
+  seller Sellers @relation("productsSeller", fields: [sellerId], references: [id], onDelete: Cascade)
+}
+
+model ChatRooms {
+  roomId String @id @default(uuid())
+  type TypeRoom @default(PRIVATE)
+  name String?
+  adminId String?
+
+  createdAt DateTime @default(now())
+  message Messages[]
+  members RoomMembers[]
+  @@unique([adminId, name])
+  adminRelation Users @relation(fields: [adminId], references: [id], onDelete: Cascade)
+}
+
+model Messages {
+  id String @id @default(uuid())
+  content String
+  senderId String
+  sendTo String?
+  chatRoomId String
+
+  chatRoom ChatRooms @relation(fields: [chatRoomId], references: [roomId], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  @@index([chatRoomId])
+}
+
+model RoomMembers {
+  id String @id @default(uuid())
+  role GroupRole @default(MEMBER)
+
+  roomId String
+  userId String
+
+  room ChatRooms @relation(fields: [roomId], references: [roomId])
+  user Users @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roomId])
+}
+
+enum TypeRoom {
+  PRIVATE
+  GROUP
+}
+
+enum GroupRole {
+  ADMIN
+  MODERATOR
+  MEMBER
+}
