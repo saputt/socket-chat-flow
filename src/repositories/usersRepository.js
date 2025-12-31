@@ -3,7 +3,12 @@ const prisma = require("../config/db");
 const users = prisma.users
 
 const findUserById = async id => await users.findUnique({
-    where : {id}
+    where : {id},
+    select : {
+        id : true,
+        name : true,
+        email : true
+    }
 })
 
 const findUserByEmail = async email => await users.findUnique({

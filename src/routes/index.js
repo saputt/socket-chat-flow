@@ -1,10 +1,10 @@
 const { Router } = require("express");
 const globalErrorHandler = require("../middlewares/globalErrorHandler");
-const authRoute = require('../routes/authRoute')
-const sellerRoute = require('../routes/sellerRoute')
-const productsRoute = require('../routes/productsRoute')
-const chatRoute = require('../routes/chatRoute')
-const userRoute = require('../routes/userRoute')
+const authRoute = require('./authRoute')
+const sellerRoute = require('./sellerRoute')
+const productsRoute = require('./productsRoute')
+const chatRoute = require('./chatRoute')
+const userRoute = require('./userRoute')
 
 const router = Router()
 

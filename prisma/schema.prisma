@@ -22,8 +22,10 @@ model Users {
 
   createdAt DateTime @default(now())
 
+  message Messages[]
   seller Sellers?
   roomMember RoomMembers[]
+  manageRoom ChatRooms[] @relation("AdminOfRoom")
 }
 
 model Sellers {
@@ -55,7 +57,7 @@ model ChatRooms {
   message Messages[]
   members RoomMembers[]
   @@unique([adminId, name])
-  adminRelation Users @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  adminRelation Users? @relation("AdminOfRoom",fields: [adminId], references: [id], onDelete: Cascade)
 }
 
 model Messages {
@@ -65,6 +67,7 @@ model Messages {
   sendTo String?
   chatRoomId String
 
+  sender Users @relation(fields: [senderId], references: [id], onDelete: Cascade)
   chatRoom ChatRooms @relation(fields: [chatRoomId], references: [roomId], onDelete: Cascade)
   createdAt DateTime @default(now())
   @@index([chatRoomId])

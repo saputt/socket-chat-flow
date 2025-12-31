@@ -9,6 +9,8 @@ const sendMessageService = async (data, senderId, roomId) => {
     const roomExist = await isRoomExist(roomId)
     
     if(roomExist.type === "PRIVATE" && data.sendTo) await isSendToExist(data.sendTo)
+    
+    if(data.content === "" || !data.content) throw new AppError("Message cannot be empty", 400)
 
     const messageData = {
         content : data.content,
@@ -79,10 +81,7 @@ const joinPrivRoomService = async (userId, sendToId) => {
 
     const roomExist = await findRoomById(roomId)
 
-    if(!roomExist) {
-        await createPrivRoom(roomId)
-        await addRoomMember(userId, roomId)
-    }
+    if(!roomExist) return createPrivRoom(roomId)
     
     return roomExist
 }
@@ -111,6 +110,12 @@ const updateGroupRoomService = async (roomId, userId, data) => {
     return updateGroupRoomName(data.name, roomId)
 }
 
+const getGroupService = async (roomId) => {
+    const groupExist = await isRoomExist(roomId)
+
+    return groupExist
+}
+
 module.exports = {
     sendMessageService,
     getAllMessageByRoomIdService,
@@ -122,5 +127,6 @@ module.exports = {
     getAllGroupService,
     joinPrivRoomService,
     joinGroupRoomService,
-    updateGroupRoomService
+    updateGroupRoomService,
+    getGroupService
 }

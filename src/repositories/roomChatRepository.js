@@ -5,7 +5,16 @@ const getAllChatByRoom = async roomId => await prisma.chatRooms.findUnique({
         roomId
     },
     include : {
-        message : true
+        message : {
+            include : {
+                sender : {
+                    select : {
+                        name : true,
+                        email : true
+                    }
+                }
+            }
+        }
     }
 })
 

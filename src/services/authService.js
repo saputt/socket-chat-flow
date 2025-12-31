@@ -1,5 +1,5 @@
 const { haveSeller } = require("../repositories/sellersRepository")
-const { findUserByEmail, createUser, updateRefreshToken, findUserByRefresh, findUserById } = require("../repositories/usersRepository")
+const { findUserByEmail, createUser, updateRefreshToken, findUserByRefresh } = require("../repositories/usersRepository")
 const AppError = require("../utils/errorHandler")
 const { isUserExistById } = require("../utils/serviceHelper")
 const { generateAccessToken, generateRefreshToken, generateNewRefreshToken } = require("../utils/generateToken")
@@ -56,6 +56,7 @@ const refreshTokenService = async token => {
 
     const refreshExistInDb = await findUserByRefresh(token)
     
+
     if(!refreshExistInDb) throw new Error("Token not valid", 400)
     
     const decoded = verifyRefreshToken(token)

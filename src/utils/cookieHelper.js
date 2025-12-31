@@ -1,5 +1,3 @@
-const { patch } = require("../routes")
-
 const setRefreshTokenCookie = (res, token, remainingTime = null) => {
     res.cookie("refreshToken", token, {
         httpOnly : true,

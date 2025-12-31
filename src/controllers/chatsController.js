@@ -1,10 +1,9 @@
-const { getAllMessageByRoomIdService, deleteRoomChatService, deleteMessageService, getAllGroupService, addRoomPrivChatService, addRoomGroupChatService, joinPrivRoomService, joinGroupRoomService, updateGroupRoomService, sendMessagePrivService, sendMessageGroupService, sendMessageService } = require("../services/chatService")
+const { getAllMessageByRoomIdService, deleteRoomChatService, deleteMessageService, getAllGroupService, addRoomPrivChatService, addRoomGroupChatService, joinPrivRoomService, joinGroupRoomService, updateGroupRoomService,  sendMessageService, getGroupService } = require("../services/chatService")
 const sendResponse = require("../utils/responseHelper")
 
 const sendMessageController = async (req, res, next) => {
     try {
         const message = await sendMessageService(req.body, req.user.id, req.params.roomId)
-
         req.io?.to(message.chatRoomId).emit("send_message", message)
         
         return sendResponse(res, 200, "Message send successfull")
@@ -111,6 +110,16 @@ const updateGroupRoomController = async (req, res, next) => {
     }
 }
 
+const getGroupController = async (req, res, next) => {
+    try {
+        const group = await getGroupService(req.params.roomId)
+
+        sendResponse(res, 200, null, group)
+    } catch (error) {
+        next(error)
+    }
+}
+
 module.exports = {
     sendMessageController,
     deleteMessageController,
@@ -121,5 +130,6 @@ module.exports = {
     joinPrivRoomController,
     joinGroupRoomController,
     getAllGroupController,
-    updateGroupRoomController
+    updateGroupRoomController,
+    getGroupController
 }

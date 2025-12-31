@@ -1,5 +1,5 @@
 const { Router } = require("express")
-const { deleteMessageController, getAllMessageByRoomIdController, deleteRoomChatController, getAllGroupController, joinPrivRoomController, addRoomPrivChatController, addRoomGroupChatController, joinGroupRoomController, updateGroupRoomController, sendMessageController } = require("../controllers/chatsController")
+const { deleteMessageController, getAllMessageByRoomIdController, deleteRoomChatController, getAllGroupController, joinPrivRoomController, addRoomPrivChatController, addRoomGroupChatController, joinGroupRoomController, updateGroupRoomController, sendMessageController, getGroupController } = require("../controllers/chatsController")
 const authMiddleware = require("../middlewares/authMiddleware")
 
 const router = Router()
@@ -20,6 +20,9 @@ router.delete("/api/room/:roomId", deleteRoomChatController)
 
 //to get all group room chat
 router.get("/api/groups", getAllGroupController)
+
+//to get group room chat
+router.get("/api/group/:roomId", getGroupController)
 
 //to get room id and join priv room
 router.post("/api/join-priv-room/:sendToId", joinPrivRoomController)

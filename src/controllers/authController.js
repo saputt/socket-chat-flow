@@ -1,4 +1,4 @@
-const { loginService, registerService, refreshTokenService, logoutService, changeRoleService } = require("../services/authService")
+const { loginService, registerService, refreshTokenService, logoutService } = require("../services/authService")
 const { setRefreshTokenCookie } = require("../utils/cookieHelper")
 const sendResponse = require("../utils/responseHelper")
 
@@ -22,7 +22,7 @@ const registerController = async (req, res, next) => {
         req.io.emit("new_user", {
             id : user.id,
             name : user.name,
-            e,ail : user.email
+            email : user.email
         })
 
         sendResponse(res, 200, "Success to create new account")
@@ -33,7 +33,7 @@ const registerController = async (req, res, next) => {
 
 const refreshTokenController = async (req, res, next) => {
     try {
-        const refresh = await refreshTokenService(req.cookies.refreshToken)
+        const refresh = await refreshTokenService(req.signedCookies.refreshToken || req.cookies.refreshToken)
 
         setRefreshTokenCookie(res, refresh.newRefreshToken, refresh.remainingTime * 1000)
 
