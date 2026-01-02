@@ -32,9 +32,10 @@ const registerController = async (req, res, next) => {
 
 const refreshTokenController = async (req, res, next) => {
     try {
+        console.log(req.cookies)
         const refresh = await refreshTokenService(req.cookies.refreshToken)
 
-        // setRefreshTokenCookie(res, refresh.newRefreshToken, refresh.remainingTime * 1000)
+        setRefreshTokenCookie(res, refresh.newRefreshToken, refresh.remainingTime * 1000)
 
         console.log("berhasil")
 

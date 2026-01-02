@@ -8,10 +8,15 @@ const authMiddleware = async (req, res, next) => {
         const token = authHeader && authHeader.split(" ")[1]
 
         if(!token) throw new AppError("You are not authenticated", 401)
-
-        const decoded = verifyAccessToken(token);
         
+        let decoded
 
+        try {
+            decoded = verifyAccessToken(token);
+        } catch (error) {
+            throw new AppError("Token not valid", 401)
+        }
+        
         const userExist = await findUserById(decoded.id)
 
         if(!userExist) throw new AppError("User no longer exist", 400)
