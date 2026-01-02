@@ -1,12 +1,37 @@
-const { getAllMessageByRoomIdService, deleteRoomChatService, deleteMessageService, getAllGroupService, addRoomPrivChatService, addRoomGroupChatService, joinPrivRoomService, joinGroupRoomService, updateGroupRoomService, sendMessagePrivService, sendMessageGroupService, sendMessageService } = require("../services/chatService")
+const { deleteMessageService, getAllGroupService, addRoomPrivChatService, addRoomGroupChatService, joinPrivRoomService, joinGroupRoomService, updateGroupRoomService, sendMessagePrivService, sendMessageGroupService, sendMessageService, getGroupService, getAllPrivMessageService, getAllGroupMessageService } = require("../services/chatService")
+const generateRoomId = require("../utils/generateRoomId")
 const sendResponse = require("../utils/responseHelper")
 
-const sendMessageController = async (req, res, next) => {
+const sendPrivMessageController = async (req, res, next) => {
     try {
-        const message = await sendMessageService(req.body, req.user.id, req.params.roomId)
-
-        req.io?.to(message.chatRoomId).emit("send_message", message)
+        req.io?.to(req.params.roomId).emit("send_message", {
+            id : Date.now(),
+            senderId : req.user.id,
+            nameSender : req.user.name, 
+            content : req.body.content
+        })
         
+        await sendMessagePrivService(req.body, req.user.id, req.params.roomId, req.user.name)
+
+        return sendResponse(res, 200, "Message send successfull")
+    } catch (error) {
+        next(error)
+    }
+}
+
+const sendGroupMessageController = async (req, res, next) => {
+    try {
+        req.io?.to(req.params.roomId).emit("send_message", {
+            id : Date.now(),
+            senderId : req.user.id,
+            content : req.body.content,
+            sender : {
+                name : req.user.name
+            }
+        })
+        
+        await sendMessageGroupService(req.body, req.user.id, req.params.roomId)
+
         return sendResponse(res, 200, "Message send successfull")
     } catch (error) {
         next(error)
@@ -25,9 +50,19 @@ const deleteMessageController = async (req, res, next) => {
     }
 }
 
-const getAllMessageByRoomIdController = async (req, res, next) => {
+const getAllPrivMessageController = async (req, res, next) => {
     try {
-        const messages = await getAllMessageByRoomIdService(req.params.roomId)
+        const messages = await getAllPrivMessageService(req.params.roomId)
+
+        return sendResponse(res, 200, "Get all message successfull", messages)
+    } catch (error) {
+        next(error)
+    }
+}
+
+const getAllGroupMessageController = async (req, res, next) => {
+    try {
+        const messages = await getAllGroupMessageService(req.params.roomId)
 
         return sendResponse(res, 200, "Get all message successfull", messages)
     } catch (error) {
@@ -99,6 +134,16 @@ const getAllGroupController = async (req, res, next) => {
     }
 }
 
+const getGroupController = async (req, res, next) => {
+    try {
+        const group = await getGroupService(req.params.roomId)
+
+        return sendResponse(res, 200, "Get detail group success", group)
+    } catch (error) {
+        next(error)
+    }
+}
+
 const updateGroupRoomController = async (req, res, next) => {
     try {
         const group = await updateGroupRoomService(req.params.roomId, req.user.id, req.body)
@@ -111,15 +156,29 @@ const updateGroupRoomController = async (req, res, next) => {
     }
 }
 
+const getPrivRoomIdController = async (req, res, next) => {
+    try {
+        const privRoomId = generateRoomId(req.params.sendToId, req.user.id)
+
+        sendResponse(res, 200, null, privRoomId)
+    } catch (error) {
+        next(error)
+    }
+}
+
 module.exports = {
-    sendMessageController,
+    sendGroupMessageController,
+    getPrivRoomIdController,
+    sendPrivMessageController,
     deleteMessageController,
-    getAllMessageByRoomIdController,
+    getAllPrivMessageController,
+    getAllGroupMessageController,
     addRoomPrivChatController,
     addRoomGroupChatController,
     deleteRoomChatController,
     joinPrivRoomController,
     joinGroupRoomController,
     getAllGroupController,
-    updateGroupRoomController
+    updateGroupRoomController,
+    getGroupController
 }

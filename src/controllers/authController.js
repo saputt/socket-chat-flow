@@ -4,7 +4,6 @@ const sendResponse = require("../utils/responseHelper")
 
 const loginController = async (req, res, next) => {
     try {
-        
         const {refreshToken, accessToken, payload} = await loginService(req.body)
         
         setRefreshTokenCookie(res, refreshToken)
@@ -22,7 +21,7 @@ const registerController = async (req, res, next) => {
         req.io.emit("new_user", {
             id : user.id,
             name : user.name,
-            e,ail : user.email
+            email : user.email
         })
 
         sendResponse(res, 200, "Success to create new account")
@@ -35,9 +34,12 @@ const refreshTokenController = async (req, res, next) => {
     try {
         const refresh = await refreshTokenService(req.cookies.refreshToken)
 
-        setRefreshTokenCookie(res, refresh.newRefreshToken, refresh.remainingTime * 1000)
+        // setRefreshTokenCookie(res, refresh.newRefreshToken, refresh.remainingTime * 1000)
+
+        console.log("berhasil")
 
         sendResponse(res, 200, null, null, refresh.newAccessToken)
+
     } catch (error) {
         next(error)
     }

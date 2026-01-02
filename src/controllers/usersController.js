@@ -1,4 +1,4 @@
-const { getMyProfileService, getAllUsersService } = require("../services/userService")
+const { getMyProfileService, getAllUsersService, getUserService } = require("../services/userService")
 const sendResponse = require("../utils/responseHelper")
 
 const getAllUsersController = async (req, res, next) => {
@@ -20,7 +20,18 @@ const getMyProfileController = async (req, res, next) => {
     }
 }
 
+const getUserController = async (req, res, next) => {
+    try {
+        const user = await getUserService(req.params.id)
+
+        sendResponse(res, 200, null, user)
+    } catch (error) {
+        next(error)
+    }
+}
+
 module.exports = {
     getAllUsersController,
-    getMyProfileController
+    getMyProfileController,
+    getUserController
 }

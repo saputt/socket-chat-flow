@@ -51,13 +51,12 @@ const registerService = async data => {
 }
 
 const refreshTokenService = async token => {
-    console.log(token)
     if(!token) throw new AppError("Not authorized", 401)
-
+    
     const refreshExistInDb = await findUserByRefresh(token)
     
     if(!refreshExistInDb) throw new Error("Token not valid", 400)
-    
+        
     const decoded = verifyRefreshToken(token)
 
     await isUserExistById(decoded.id)
@@ -70,11 +69,11 @@ const refreshTokenService = async token => {
     const remainingTime = Math.floor(decoded.exp - (Date.now() / 1000)) + 1 
 
     const newAccessToken = generateAccessToken(payload)
-    const newRefreshToken = generateNewRefreshToken(payload, remainingTime)
+    // const newRefreshToken = generateNewRefreshToken(payload, remainingTime)
 
-    await updateRefreshToken(decoded.id, newRefreshToken)
+    // await updateRefreshToken(decoded.id, newRefreshToken)
 
-    return {newAccessToken, newRefreshToken, remainingTime}
+    return {newAccessToken, remainingTime}
 }
 
 const logoutService = async id => {

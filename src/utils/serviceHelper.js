@@ -1,5 +1,6 @@
+const { findGroupRoomById } = require("../repositories/groupRoomRepository")
+const { findPrivRoomById } = require("../repositories/privRoomRepository")
 const { findProductById } = require("../repositories/productsRepository")
-const { findRoomById } = require("../repositories/roomChatRepository")
 const { findSellerByUserId, findSellerById } = require("../repositories/sellersRepository")
 const { findUserById } = require("../repositories/usersRepository")
 const AppError = require("./errorHandler")
@@ -33,17 +34,26 @@ const isSendToExist = async sendToId => {
     }
 }
 
-const isRoomExist = async roomId => {
-    const roomExist = await findRoomById(roomId)
+const isGroupExist = async roomId => {
+    const groupExist = await findGroupRoomById(roomId)
 
-    if(!roomExist) throw new AppError("Room doesnt exist", 400)
+    if(!groupExist) throw new AppError("Room doestn exist", 404)
 
-    return roomExist
+    return groupExist
+}
+
+const isPrivExist = async roomId => {
+    const privExist = await findPrivRoomById(roomId)
+
+    if(!privExist) throw new AppError("Room doestn exist", 404)
+
+    return privExist
 }
 
 module.exports = {
     isUserExistById,
     isSellerAllow,
     isSendToExist,
-    isRoomExist
+    isGroupExist,
+    isPrivExist
 }

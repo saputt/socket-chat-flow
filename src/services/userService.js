@@ -1,4 +1,5 @@
 const { getAllUsers, findUserById } = require("../repositories/usersRepository")
+const { isUserExistById } = require("../utils/serviceHelper")
 
 const getAllUsersService = async () => {
     return getAllUsers()
@@ -12,7 +13,13 @@ const getMyProfileService = async id => {
     return {...data}
 }
 
+const getUserService = async id => {
+    const userExist = await isUserExistById(id)
+    return userExist
+}
+
 module.exports = {
     getAllUsersService,
-    getMyProfileService
+    getMyProfileService,
+    getUserService
 }

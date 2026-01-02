@@ -1,27 +1,42 @@
-const { createMessage, deleteMessage } = require("../repositories/chatRepository")
-const { findRoomById, getAllChatByRoom, getAllGroup, deleteRoomChatById, createGroupRoom, findRoomByNameId, createPrivRoom, updateGroupRoomName } = require("../repositories/roomChatRepository")
+const { deleteMessage, createPrivMessage, createGroupMessage } = require("../repositories/chatRepository")
 const AppError = require("../utils/errorHandler")
-const { isSendToExist, isUserExistById, isRoomExist } = require("../utils/serviceHelper")
+const { isSendToExist, isUserExistById, isGroupExist, isPrivExist } = require("../utils/serviceHelper")
 const generateRoomId = require("../utils/generateRoomId")
 const { addRoomMember, findMember } = require("../repositories/roomMemberRepository")
+const { findPrivRoomById, getAllPrivMessage, createPrivRoom } = require("../repositories/privRoomRepository")
+const { findGroupRoomById, getAllGroupMessage, findRoomByNameId, createGroupRoom, getAllGroup } = require("../repositories/groupRoomRepository")
 
-const sendMessageService = async (data, senderId, roomId) => {
-    const roomExist = await isRoomExist(roomId)
-    
-    if(roomExist.type === "PRIVATE" && data.sendTo) await isSendToExist(data.sendTo)
+const sendMessagePrivService = async (data, senderId, roomId) => {
+    await isPrivExist(roomId)
 
     const messageData = {
         content : data.content,
         senderId : senderId,
-        ...(data.sendTo && {sendTo : data.sendTo}),
-        chatRoomId : roomId,
+        sendTo : data.sendTo,
+        privRoomId : roomId,
     }
 
-    return createMessage(messageData)
+    return createPrivMessage(messageData)
 }
 
-const getAllMessageByRoomIdService = roomId => {
-    return getAllChatByRoom(roomId)
+const sendMessageGroupService = async (data, senderId, roomId) => {
+    await isGroupExist(roomId)
+
+    const messageData = {
+        content : data.content,
+        senderId : senderId,
+        groupRoomId : roomId,
+    }
+
+    return createGroupMessage(messageData)
+}
+
+const getAllPrivMessageService = roomId => {
+    return getAllPrivMessage(roomId)
+}
+
+const getAllGroupMessageService = roomId => {
+    return getAllGroupMessage(roomId)
 }
 
 const addRoomPrivChatService = async (senderId, sendTo) => {
@@ -29,7 +44,7 @@ const addRoomPrivChatService = async (senderId, sendTo) => {
     
     const idRoom = generateRoomId(sendTo, senderId)
 
-    const roomExist = await findRoomById(idRoom)
+    const roomExist = await findPrivRoomById(idRoom)
 
     if(roomExist) throw new AppError("Room is already defined")
 
@@ -42,7 +57,6 @@ const addRoomGroupChatService = async (data, adminId) => {
     if(groupIsDup) throw new AppError("You are already have this group")
 
     const groupData = {
-        type : "GROUP",
         name : data.name,
         adminId : adminId
     }
@@ -50,12 +64,10 @@ const addRoomGroupChatService = async (data, adminId) => {
     return createGroupRoom(groupData)
 }
 
-const deleteRoomChatService = async (roomId, userId) => {
-    const roomExist = await isRoomExist(roomId)
+const deleteGroupChatService = async (roomId, userId) => {
+    await isGroupExist(roomId)
 
-    if(roomExist.type === "PRIVATE") throw new AppError("Youre cannot delete private chat")
-
-    if(roomExist.adminId !== userId) throw new AppError("Your are not authorized to delete this group")
+    if(groupExist.adminId !== userId) throw new AppError("Your are not authorized to delete this group")
 
     return deleteRoomChatById(roomId)
 }
@@ -77,18 +89,15 @@ const joinPrivRoomService = async (userId, sendToId) => {
 
     const roomId = generateRoomId(userId, sendToId)
 
-    const roomExist = await findRoomById(roomId)
+    const roomExist = await findPrivRoomById(roomId)
 
-    if(!roomExist) {
-        await createPrivRoom(roomId)
-        await addRoomMember(userId, roomId)
-    }
+    if(!roomExist) return await createPrivRoom(roomId)
     
     return roomExist
 }
 
 const joinGroupRoomService = async (roomId, userId) => {
-    await isRoomExist(roomId)
+    await isGroupExist(roomId)
 
     await isUserExistById(userId)
 
@@ -104,17 +113,27 @@ const getAllGroupService = async () => {
 }
 
 const updateGroupRoomService = async (roomId, userId, data) => {
-    const groupExist = await isRoomExist(roomId)
+    await isGroupExist(roomId)
 
     if(groupExist.adminId !== userId) throw new AppError("Youre not authorized to edit this group")
 
     return updateGroupRoomName(data.name, roomId)
 }
 
+const getGroupService = async roomId => {
+    const groupExist = await findGroupRoomById(roomId)
+
+    if(!groupExist) throw AppError("Group doesnt find", 404)
+
+    return groupExist
+}
+
 module.exports = {
-    sendMessageService,
-    getAllMessageByRoomIdService,
-    deleteRoomChatService,
+    sendMessagePrivService,
+    sendMessageGroupService,
+    getAllGroupMessageService,
+    getAllPrivMessageService,
+    deleteGroupChatService,
     deleteMessageService,
     joinPrivRoomService,
     addRoomGroupChatService,
@@ -122,5 +141,6 @@ module.exports = {
     getAllGroupService,
     joinPrivRoomService,
     joinGroupRoomService,
-    updateGroupRoomService
+    updateGroupRoomService,
+    getGroupService
 }

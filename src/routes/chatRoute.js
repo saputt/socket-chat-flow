@@ -1,25 +1,34 @@
 const { Router } = require("express")
-const { deleteMessageController, getAllMessageByRoomIdController, deleteRoomChatController, getAllGroupController, joinPrivRoomController, addRoomPrivChatController, addRoomGroupChatController, joinGroupRoomController, updateGroupRoomController, sendMessageController } = require("../controllers/chatsController")
+const { deleteMessageController, getAllMessageByRoomIdController, deleteRoomChatController, getAllGroupController, joinPrivRoomController, addRoomPrivChatController, addRoomGroupChatController, joinGroupRoomController, updateGroupRoomController, sendMessageController, getGroupController, sendPrivMessageController, sendGroupMessageController, getAllPrivMessageController, getAllGroupMessageController, getPrivRoomIdController } = require("../controllers/chatsController")
 const authMiddleware = require("../middlewares/authMiddleware")
 
 const router = Router()
 
 router.use(authMiddleware)
 
-//to send a message
-router.post("/api/message/:roomId", sendMessageController)
+//send priv message
+router.post("/api/priv-message/:roomId", sendPrivMessageController)
+
+//send group message
+router.post("/api/group-message/:roomId", sendGroupMessageController)
 
 //to delete a message from chat
 router.delete("/api/message/:messageId", deleteMessageController)
 
-//to get all messages from room
-router.get("/api/messages/:roomId", getAllMessageByRoomIdController)
+//to get all priv messages from room
+router.get("/api/priv-messages/:roomId", getAllPrivMessageController)
+
+//to get all group messages from room
+router.get("/api/group-messages/:roomId", getAllGroupMessageController)
 
 //to delete roomchat
 router.delete("/api/room/:roomId", deleteRoomChatController)
 
 //to get all group room chat
 router.get("/api/groups", getAllGroupController)
+
+//to get detail group room chat
+router.get("/api/group/:roomId", getGroupController)
 
 //to get room id and join priv room
 router.post("/api/join-priv-room/:sendToId", joinPrivRoomController)
@@ -35,5 +44,8 @@ router.post("/api/group-room", addRoomGroupChatController)
 
 //to edit group chat name
 router.patch("/api/group-room/:roomId", updateGroupRoomController)
+
+//get room id for private
+router.get("/api/priv-room-id/:sendToId", getPrivRoomIdController)
 
 module.exports = router

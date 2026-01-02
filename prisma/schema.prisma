@@ -9,12 +9,12 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
 model Users {
-  id String @id @default(uuid())
+  id String @id @default(auto()) @map("_id") @db.ObjectId
   name String
   email String @unique
   password String 
@@ -24,68 +24,75 @@ model Users {
 
   seller Sellers?
   roomMember RoomMembers[]
+  adminRoom GroupRooms[]
+  messages Messages[]
 }
 
 model Sellers {
-  id String @id @default(uuid())
+  id String @id @default(auto()) @map("_id") @db.ObjectId
   name String 
   description String?
 
   products Products[] @relation("productsSeller")
-  idUser String @unique
-  user Users @relation(fields: [idUser], references: [id], onDelete: Cascade)
+  idUser String @unique @db.ObjectId
+  user Users @relation(fields: [idUser], references: [id])
 }
 
 model Products {
-  id String @id @default(uuid())
+  id String @id @default(auto()) @map("_id") @db.ObjectId
   name String
   stock Int?
   description String?
-  sellerId String 
-  seller Sellers @relation("productsSeller", fields: [sellerId], references: [id], onDelete: Cascade)
+  sellerId String @db.ObjectId
+  seller Sellers @relation("productsSeller", fields: [sellerId], references: [id])
 }
 
-model ChatRooms {
-  roomId String @id @default(uuid())
-  type TypeRoom @default(PRIVATE)
+model PrivRooms {
+  roomId String @id @map("_id")
+
+  createdAt DateTime @default(now())
+  message Messages[]
+}
+
+model GroupRooms {
+  roomId String @id @default(auto()) @map("_id") @db.ObjectId
   name String?
-  adminId String?
+  adminId String @db.ObjectId
 
   createdAt DateTime @default(now())
   message Messages[]
   members RoomMembers[]
   @@unique([adminId, name])
-  adminRelation Users @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  adminRelation Users @relation(fields: [adminId], references: [id])
 }
 
 model Messages {
-  id String @id @default(uuid())
+  id String @id @default(auto()) @map("_id") @db.ObjectId
   content String
-  senderId String
-  sendTo String?
-  chatRoomId String
+  senderId String @db.ObjectId
+  sendTo String? @db.ObjectId
 
-  chatRoom ChatRooms @relation(fields: [chatRoomId], references: [roomId], onDelete: Cascade)
+  privRoomId String?
+  groupRoomId String? @db.ObjectId
+
+  grupRoom GroupRooms? @relation(fields: [groupRoomId], references: [roomId])
+  privRoom PrivRooms? @relation(fields: [privRoomId], references: [roomId])
+  sender Users @relation(fields: [senderId], references: [id])
+
   createdAt DateTime @default(now())
-  @@index([chatRoomId])
 }
 
 model RoomMembers {
-  id String @id @default(uuid())
+  id String @id @default(auto()) @map("_id") @db.ObjectId
   role GroupRole @default(MEMBER)
 
-  roomId String
-  userId String
+  roomId String @db.ObjectId
+  userId String @db.ObjectId
 
-  room ChatRooms @relation(fields: [roomId], references: [roomId])
-  user Users @relation(fields: [userId], references: [id], onDelete: Cascade)
+  room GroupRooms @relation(fields: [roomId], references: [roomId])
+  user Users @relation(fields: [userId], references: [id])
 
   @@unique([userId, roomId])
-}
-
-enum TypeRoom {
-  PRIVATE
-  GROUP
 }
 
 enum GroupRole {
