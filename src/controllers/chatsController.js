@@ -27,7 +27,8 @@ const sendGroupMessageController = async (req, res, next) => {
             content : req.body.content,
             sender : {
                 name : req.user.name
-            }
+            },
+            roomId : req.params.roomId
         })
         
         await sendMessageGroupService(req.body, req.user.id, req.params.roomId)

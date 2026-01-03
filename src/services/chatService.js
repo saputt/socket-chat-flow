@@ -54,7 +54,7 @@ const addRoomPrivChatService = async (senderId, sendTo) => {
 const addRoomGroupChatService = async (data, adminId) => {
     const groupIsDup = await findRoomByNameId(data.name, adminId)
 
-    if(groupIsDup) throw new AppError("You are already have this group")
+    if(groupIsDup) throw new AppError("You are already have this group", 404)
 
     const groupData = {
         name : data.name,

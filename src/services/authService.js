@@ -69,11 +69,11 @@ const refreshTokenService = async token => {
     const remainingTime = Math.floor(decoded.exp - (Date.now() / 1000)) + 1 
 
     const newAccessToken = generateAccessToken(payload)
-    const newRefreshToken = generateNewRefreshToken(payload, remainingTime)
+    // const newRefreshToken = generateNewRefreshToken(payload, remainingTime)
 
-    await updateRefreshToken(decoded.id, newRefreshToken)
+    // await updateRefreshToken(decoded.id, newRefreshToken)
 
-    return {newAccessToken, newRefreshToken, remainingTime}
+    return {newAccessToken, remainingTime}
 }
 
 const logoutService = async id => {

@@ -32,15 +32,10 @@ const registerController = async (req, res, next) => {
 
 const refreshTokenController = async (req, res, next) => {
     try {
-        console.log(req.cookies)
         const refresh = await refreshTokenService(req.cookies.refreshToken)
-
-        setRefreshTokenCookie(res, refresh.newRefreshToken, refresh.remainingTime * 1000)
-
-        console.log("berhasil")
+        // setRefreshTokenCookie(res, refresh.newRefreshToken, refresh.remainingTime * 1000)
 
         sendResponse(res, 200, null, null, refresh.newAccessToken)
-
     } catch (error) {
         next(error)
     }
