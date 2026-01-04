@@ -9,6 +9,8 @@ const { findGroupRoomById, getAllGroupMessage, findRoomByNameId, createGroupRoom
 const sendMessagePrivService = async (data, senderId, roomId) => {
     await isPrivExist(roomId)
 
+    console.log(data)
+
     const messageData = {
         content : data.content,
         senderId : senderId,
@@ -31,7 +33,7 @@ const sendMessageGroupService = async (data, senderId, roomId) => {
     return createGroupMessage(messageData)
 }
 
-const getAllPrivMessageService = roomId => {
+const getAllPrivMessageService = async roomId => {
     return getAllPrivMessage(roomId)
 }
 
@@ -91,7 +93,11 @@ const joinPrivRoomService = async (userId, sendToId) => {
 
     const roomExist = await findPrivRoomById(roomId)
 
-    if(!roomExist) return await createPrivRoom(roomId)
+    if(!roomExist) return await createPrivRoom({
+        roomId,
+        user1 : userId,
+        user2 : sendToId
+    })
     
     return roomExist
 }

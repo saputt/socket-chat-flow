@@ -8,9 +8,11 @@ const sendPrivMessageController = async (req, res, next) => {
             id : Date.now(),
             senderId : req.user.id,
             nameSender : req.user.name, 
-            content : req.body.content
+            content : req.body.content,
+            roomId : req.params.roomId,
+            isPriv : true
         })
-        
+
         await sendMessagePrivService(req.body, req.user.id, req.params.roomId, req.user.name)
 
         return sendResponse(res, 200, "Message send successfull")
@@ -28,7 +30,8 @@ const sendGroupMessageController = async (req, res, next) => {
             sender : {
                 name : req.user.name
             },
-            roomId : req.params.roomId
+            roomId : req.params.roomId,
+            isGroup : true
         })
         
         await sendMessageGroupService(req.body, req.user.id, req.params.roomId)

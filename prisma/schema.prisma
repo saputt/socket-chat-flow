@@ -26,6 +26,8 @@ model Users {
   roomMember RoomMembers[]
   adminRoom GroupRooms[]
   messages Messages[]
+  firstUser PrivRooms[] @relation("firstUserRel")
+  secondUser PrivRooms[] @relation("secondUserRel")
 }
 
 model Sellers {
@@ -49,6 +51,12 @@ model Products {
 
 model PrivRooms {
   roomId String @id @map("_id")
+
+  user1 String @db.ObjectId
+  user2 String @db.ObjectId
+
+  firstUser Users @relation("firstUserRel", fields: [user1], references: [id])
+  secondUser Users @relation("secondUserRel", fields: [user2], references: [id])
 
   createdAt DateTime @default(now())
   message Messages[]
